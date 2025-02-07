@@ -1,5 +1,6 @@
 const express = require('express')
 const captainController = require('../controllers/captain.controller');
+const authMiddlware = require('../middlewares/auth.middleware')
 
 const router = express.Router();
 
@@ -15,7 +16,16 @@ router.post('/register', [
   body('vehicle.vehicleType').isIn(["car", "motorcycle", "auto"]).withMessage('Invalid vehicle type'),
 ],
   captainController.registerCaptain  
-)
+);
 
+router.post('/login',[
+  body('email').isEmail().withMessage('Invalid email'),
+  body('password').isLength({min: 6}).withMessage('Password must be 6 characters long')
+], captainController.loginCaptain);
+
+
+router.get('/profile', authMiddlware.authCaptain, captainController.getCaptainProfile);
+
+router.get('/logout', authMiddlware.authCaptain, captainController.logoutCaptain);
 
 module.exports = router;
